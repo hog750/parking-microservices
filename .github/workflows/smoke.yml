@@ -7,7 +7,7 @@ on:
 
 jobs:
   smoke:
-    runs-on: [self-hosted, windows, x64]
+    runs-on: [self-hosted, Windows, x64]
 
     steps:
       - name: Checkout
