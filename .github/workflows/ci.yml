@@ -1,0 +1,109 @@
+name: Final build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - { name: auth_service, path: auth_service }
+          - { name: vehicle_service, path: vehicle_service }
+          - { name: parking_service, path: parking_service }
+          - { name: payment_service, path: payment_service }
+          - { name: offline_payment_service, path: offline_payment_service }
+          - { name: analytics_service, path: analytics_service }
+          - { name: dashboard_service, path: dashboard_service }
+          - { name: monitoring_service, path: monitoring_service }
+          - { name: notification_service, path: notification_service }
+          - { name: tariff_service, path: tariff_service }
+          # если у тебя реально есть контейнерный ocr_service — добавь обратно
+          # - { name: ocr_service, path: ocr_service }
+          # если ocr_local — просто скрипты, делай отдельный простой тест или исключи
+          # - { name: ocr_local, path: ocr_local }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      # Можно оставить как в примере — не мешает
+      - name: Install system deps (pyodbc build)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unixodbc-dev g++
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.service.path }}
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest
+
+      - name: Run tests
+        working-directory: ${{ matrix.service.path }}
+        run: pytest -q
+
+  smoke:
+    runs-on: [self-hosted, windows, x64]
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Docker version
+        shell: powershell
+        run: |
+          docker --version
+          docker compose version
+
+      - name: Build images
+        shell: powershell
+        run: docker compose build
+
+      - name: Start core stack
+        shell: powershell
+        run: |
+          docker compose up -d auth_service vehicle_service parking_service payment_service offline_payment_service analytics_service monitoring_service notification_service tariff_service dashboard_service
+          Start-Sleep -Seconds 20
+
+      - name: Smoke health checks
+        shell: powershell
+        run: |
+          $endpoints = @(
+            "http://localhost:5001/health",
+            "http://localhost:5002/health",
+            "http://localhost:5003/health",
+            "http://localhost:5004/health",
+            "http://localhost:5005/health",
+            "http://localhost:5006/health",
+            "http://localhost:5008/health",
+            "http://localhost:5011/health",
+            "http://localhost:5012/health",
+            "http://localhost:8080/health"
+          )
+
+          foreach ($url in $endpoints) {
+            Write-Host "Checking $url"
+            $ok = $false
+            for ($i=0; $i -lt 12; $i++) {
+              try {
+                $r = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 5
+                if ($r.StatusCode -eq 200) { $ok = $true; break }
+              } catch {}
+              Start-Sleep -Seconds 5
+            }
+            if (-not $ok) { throw "Health check failed: $url" }
+          }
+
+      - name: Teardown
+        if: always()
+        shell: powershell
+        run: docker compose down -v
