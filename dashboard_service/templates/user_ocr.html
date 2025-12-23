@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Upload car plate (OCR)</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="image" class="form-label">License plate photo</label>
+                    <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload & recognize</button>
+            </form>
+        </div>
+    </div>
+
+    {% if detected_plate %}
+    <div class="card mt-3">
+        <div class="card-header">
+            OCR result
+        </div>
+        <div class="card-body">
+            <p class="mb-1"><strong>Detected plate:</strong></p>
+            <p><code>{{ detected_plate }}</code></p>
+            <p class="text-muted mb-0">
+                Vehicle with this plate has been linked to your account.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

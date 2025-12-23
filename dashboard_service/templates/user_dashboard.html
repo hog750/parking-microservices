@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}User Panel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>User Panel</h2>
+  <div class="list-group mt-3">
+    <a href="{{ url_for('user_upload_plate') }}" class="list-group-item list-group-item-action">
+      Upload car plate (OCR)
+    </a>
+    <a href="{{ url_for('user_slots') }}" class="list-group-item list-group-item-action">
+      Choose parking slot
+    </a>
+    <a href="{{ url_for('user_stop') }}" class="list-group-item list-group-item-action">
+      Stop parking
+    </a>
+    <a href="{{ url_for('pay') }}" class="list-group-item list-group-item-action">
+      Pay for last parking session
+    </a>
+    <a href="{{ url_for('user_history') }}" class="list-group-item list-group-item-action">
+      Payment history
+    </a>
+    <a href="{{ url_for('offline_pay') }}" class="list-group-item list-group-item-action">
+      Offline payment (QR)
+    </a>
+  </div>
+</div>
+{% endblock %}

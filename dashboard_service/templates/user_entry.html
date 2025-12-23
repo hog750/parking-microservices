@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Entry (OCR){% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Parking Entry — Upload Plate Photo</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label class="form-label">License Plate Image</label>
+        <input type="file" name="image" class="form-control" accept="image/*" required>
+        <div class="form-text">
+            Upload a clear photo of the vehicle plate. OCR is done by local EasyOCR.
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Parking Slot (optional)</label>
+        <select name="slot_id" class="form-select">
+            <option value="">Auto-select first free slot</option>
+            {% for slot in slots %}
+                <option value="{{ slot.slot_id }}">
+                    Slot {{ slot.slot_id }} — {{ slot.status }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Upload & Start Parking</button>
+</form>
+
+<hr class="mt-4">
+
+<h4>Slots Overview</h4>
+{% if slots %}
+    <table class="table table-striped mt-2">
+        <thead>
+            <tr>
+                <th>Slot ID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for slot in slots %}
+            <tr>
+                <td>{{ slot.slot_id }}</td>
+                <td>{{ slot.status }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="text-muted">No slots data available.</p>
+{% endif %}
+{% endblock %}

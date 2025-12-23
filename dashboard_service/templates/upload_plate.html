@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Upload Plate & Choose Slot{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Upload Plate &amp; Choose Slot</h2>
+
+  <!-- Форма загрузки изображения + OCR -->
+  <form method="post" enctype="multipart/form-data" class="mt-3">
+    <input type="hidden" name="action" value="upload">
+    <div class="mb-3">
+      <label class="form-label">Upload license plate photo:</label>
+      <input type="file" class="form-control" name="image" accept="image/*">
+    </div>
+    <button type="submit" class="btn btn-primary">Upload &amp; Recognize</button>
+  </form>
+
+  {% if recognized_plate %}
+  <hr>
+  <h4>Recognized plate: <span class="text-primary">{{ recognized_plate }}</span></h4>
+  {% endif %}
+
+  {% if slots %}
+  <hr>
+  <h4>Choose parking slot</h4>
+  <form method="post" class="mt-3">
+    <input type="hidden" name="action" value="park">
+    <div class="mb-3">
+      <label for="slot_id" class="form-label">Available slots:</label>
+      <select id="slot_id" name="slot_id" class="form-select" required>
+        <option value="" selected disabled>Choose slot...</option>
+        {% for s in slots %}
+          <option value="{{ s.slot_id }}">
+            Slot {{ s.slot_id }} — {{ s.status }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-success">Park my car</button>
+  </form>
+  {% endif %}
+
+  {% if park_result %}
+  <hr>
+  <div class="alert alert-info mt-3">
+    {{ park_result.message }}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

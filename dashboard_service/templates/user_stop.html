@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Stop parking</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" class="mb-3">
+        <button type="submit" class="btn btn-danger">
+            Stop current parking session
+        </button>
+    </form>
+
+    {% if result %}
+    <div class="card mb-3">
+        <div class="card-header">Session result</div>
+        <div class="card-body">
+            {% if result.session_id %}
+                <p><strong>Session ID:</strong> {{ result.session_id }}</p>
+            {% endif %}
+            {% if result.total_minutes is not none %}
+                <p><strong>Total minutes:</strong> {{ result.total_minutes }}</p>
+            {% endif %}
+            {% if result.fee is not none %}
+                <p><strong>Fee:</strong> {{ result.fee }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if qr_code %}
+    <div class="card">
+        <div class="card-header">Offline QR code for payment</div>
+        <div class="card-body text-center">
+            <p class="mb-2">
+                <strong>QR code text:</strong><br>
+                <code>{{ qr_code }}</code>
+            </p>
+            <p class="mb-2 text-muted">
+                Use this QR code at the offline terminal.
+            </p>
+            <img src="{{ url_for('offline_qr', code=qr_code) }}"
+                 alt="Offline QR"
+                 class="img-fluid"
+                 style="max-width: 240px;">
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

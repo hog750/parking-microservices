@@ -1,0 +1,19 @@
+# Python
+pycache/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+ocr_env/
+
+# Uploads / temp
+uploads/
+*.log
+
+# Env & secrets
+.env
+
+# OS
+.DS_Store
+Thumbs.db

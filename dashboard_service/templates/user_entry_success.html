@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Entry Success{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Parking Started</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Session Details</h5>
+        <p><strong>Recognized Plate:</strong> {{ plate }}</p>
+        <p><strong>Assigned Slot:</strong> {{ slot_id }}</p>
+
+        {% if session %}
+            <h6 class="mt-3">Service Response</h6>
+            {% if session.message %}
+                <p>{{ session.message }}</p>
+            {% endif %}
+            <ul>
+            {% for key, value in session.items() %}
+                {% if key != 'message' %}
+                    <li><strong>{{ key }}:</strong> {{ value }}</li>
+                {% endif %}
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+
+<a href="{{ url_for('user_panel') }}" class="btn btn-primary mt-3">Back to User Panel</a>
+{% endblock %}

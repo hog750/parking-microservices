@@ -1,0 +1,149 @@
+
+services:
+  auth_service:
+    build: ./auth_service
+    container_name: auth_service
+    ports:
+      - "5001:5001"
+    networks:
+      - parking_net
+
+  vehicle_service:
+    build: ./vehicle_service
+    container_name: vehicle_service
+    ports:
+      - "5002:5002"
+    environment:
+      DB_SERVER: host.docker.internal
+      DB_NAME: VehicleDB
+      DB_USER: sa
+      DB_PASSWORD: SaPass123!
+      AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
+    depends_on:
+      - auth_service
+    networks:
+      - parking_net
+
+  parking_service:
+    build: ./parking_service
+    container_name: parking_service
+    ports:
+      - "5003:5003"
+    environment:
+      DB_SERVER: host.docker.internal
+      DB_NAME: ParkingDB2
+      DB_USER: sa
+      DB_PASSWORD: SaPass123!
+      AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
+      VEHICLE_URL: "http://vehicle_service:5002"
+    depends_on:
+      - auth_service
+      - vehicle_service
+    networks:
+      - parking_net
+
+  payment_service:
+    build: ./payment_service
+    container_name: payment_service
+    ports:
+      - "5004:5004"
+    environment:
+      DB_SERVER: host.docker.internal
+      DB_NAME: PaymentDB
+      DB_USER: sa
+      DB_PASSWORD: SaPass123!
+      AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
+    depends_on:
+      - auth_service
+    networks:
+      - parking_net
+
+  offline_payment_service:
+    build: ./offline_payment_service
+    container_name: offline_payment_service
+    ports:
+      - "5008:5008"
+    depends_on:
+      - payment_service
+    networks:
+      - parking_net
+
+  analytics_service:
+    build: ./analytics_service
+    container_name: analytics_service
+    ports:
+      - "5005:5005"
+    environment:
+      DB_SERVER: host.docker.internal
+    depends_on:
+      - payment_service
+      - parking_service
+      - vehicle_service
+    networks:
+      - parking_net
+
+  dashboard_service:
+    build: ./dashboard_service
+    container_name: dashboard_service
+    ports:
+      - "8080:8080"
+    environment:
+      DASHBOARD_SECRET_KEY: "dashboardsecret"
+      AUTH_URL_BASE: "http://auth_service:5001"
+      PARKING_URL_BASE: "http://parking_service:5003"
+      PAYMENT_URL_BASE: "http://payment_service:5004"
+      VEHICLE_URL_BASE: "http://vehicle_service:5002"
+      OFFLINE_URL_BASE: "http://offline_payment_service:5008"
+      OCR_LOCAL_URL: "http://host.docker.internal:5010"
+    depends_on:
+      - auth_service
+      - parking_service
+      - payment_service
+      - vehicle_service
+    networks:
+      - parking_net
+
+  monitoring_service:
+    build: ./monitoring_service
+    container_name: monitoring_service
+    ports:
+      - "5006:5006"
+    depends_on:
+      - auth_service
+      - vehicle_service
+      - parking_service
+      - payment_service
+      - analytics_service
+      - dashboard_service
+      - offline_payment_service
+    networks:
+      - parking_net
+  
+  tariff_service:
+    build: ./tariff_service
+    container_name: tariff_service
+    ports:
+      - "5011:5011"
+    environment:
+      DB_SERVER: host.docker.internal
+      DB_NAME: TariffDB
+      DB_USER: sa
+      DB_PASSWORD: SaPass123!
+    networks:
+      - parking_net
+
+
+  notification_service:
+    build: ./notification_service
+    container_name: notification_service
+    ports:
+      - "5012:5012"
+    networks:
+      - parking_net
+
+
+
+
+networks:
+  parking_net:
+    driver: bridge

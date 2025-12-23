@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Online Payment{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Online Payment</h2>
+
+  <!-- Блок тарифов -->
+  <div class="card mt-3 mb-4">
+    <div class="card-header">
+      Tariff Policy
+    </div>
+    <div class="card-body">
+      <ul>
+        <li>First 30 minutes – <strong>free</strong>.</li>
+        <li>After that, every started hour – <strong>30 MDL</strong>.</li>
+      </ul>
+      <p class="mb-0">
+        The system automatically calculates the exact amount based on your parking session time.
+      </p>
+    </div>
+  </div>
+
+  {% if not last_session_id %}
+    <div class="alert alert-warning">
+      You have no recent parking session to pay for.
+    </div>
+  {% else %}
+    <form method="post">
+      <input type="hidden" name="session_id" value="{{ last_session_id }}">
+      <div class="mb-3">
+        <label class="form-label">Session ID</label>
+        <input type="text" class="form-control" value="{{ last_session_id }}" readonly>
+        <div class="form-text">
+          This is your last closed parking session. It will be used automatically.
+        </div>
+      </div>
+
+      {% if last_amount is not none %}
+      <div class="mb-3">
+        <label class="form-label">Approximate amount (MDL)</label>
+        <input type="text" class="form-control" value="{{ last_amount }}" readonly>
+      </div>
+      {% endif %}
+
+      <div class="mb-3">
+        <label class="form-label">Payment method</label>
+        <select name="method" class="form-select">
+          <option value="Card">Card</option>
+          <option value="Cash">Cash</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Pay</button>
+    </form>
+  {% endif %}
+
+  {% if payment_result %}
+    <hr>
+    <div class="alert alert-info mt-3">
+      Payment recorded for session {{ payment_result.session_id }} — {{ payment_result.amount }} MDL
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

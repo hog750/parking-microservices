@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="text-center mt-5">
+  <h1>Smart Parking System</h1>
+  <p class="lead mt-3">Microservices-based prototype</p>
+  {% if not session.get('token') %}
+    <a href="{{ url_for('login') }}" class="btn btn-primary mt-3">Login</a>
+    <a href="{{ url_for('signup') }}" class="btn btn-outline-light mt-3">Sign up</a>
+  {% else %}
+    {% if session.get('role') == 'admin' %}
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-3">Go to admin dashboard</a>
+    {% else %}
+      <a href="{{ url_for('user_panel') }}" class="btn btn-primary mt-3">Go to user panel</a>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

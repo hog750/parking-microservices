@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<h4>System Status</h4>
+<div class="row">
+    {% for key, val in health.items() %}
+    {% if key != 'overall' %}
+        <div class="col-3 mb-3">
+            <div class="card border-{{ 'success' if val == 'ok' else 'danger' }}">
+                <div class="card-body text-center">
+                    <h6>{{ key }}</h6>
+                    <p class="text-{{ 'success' if val == 'ok' else 'danger' }}">
+                        {{ val }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% endfor %}
+</div>
+
+<hr>
+
+<h4>Analytics</h4>
+<ul>
+    <li>Today's revenue: <b>{{ stats.today_revenue }} MDL</b></li>
+    <li>Today's sessions: <b>{{ stats.today_sessions }}</b></li>
+    <li>Average parking time: <b>{{ stats.avg_parking_minutes }} min</b></li>
+    <li>Slots occupied: <b>{{ stats.occupied_slots }}</b></li>
+    <li>Slots free: <b>{{ stats.free_slots }}</b></li>
+    <li>Unique vehicles: <b>{{ stats.unique_vehicles }}</b></li>
+</ul>
+
+<hr>
+
+<h4>Active Parking Sessions</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Session ID</th>
+            <th>Plate</th>
+            <th>Slot</th>
+            <th>User</th>
+            <th>Minutes</th>
+            <th>Expected Fee</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for s in active_sessions %}
+        <tr>
+            <td>{{ s.session_id }}</td>
+            <td>{{ s.vehicle_id }}</td>
+            <td>{{ s.slot_id }}</td>
+            <td>{{ s.user_name }}</td>
+            <td>{{ s.minutes }}</td>
+            <td>{{ s.expected_fee }} MDL</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<h4>Current Tariff</h4>
+{% if tariff %}
+<ul>
+    <li>First free minutes: <b>{{ tariff.free_minutes }}</b></li>
+    <li>Price per hour: <b>{{ tariff.price_per_hour }} MDL</b></li>
+</ul>
+{% else %}
+<p class="text-danger">Tariff service unavailable</p>
+{% endif %}
+
+<hr>
+
+<h4>Recent Notifications</h4>
+<ul>
+{% for n in notifications %}
+    <li>[{{ n.type }}] — {{ n.message }} <small class="text-muted">{{ n.created_at }}</small></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

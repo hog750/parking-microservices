@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Payment History</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Session</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Paid at</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for p in payments %}
+        <tr>
+            <td>{{ p.session_id }}</td>
+            <td>{{ p.amount }} MDL</td>
+            <td>{{ p.method }}</td>
+            <td>{{ p.paid_at }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
