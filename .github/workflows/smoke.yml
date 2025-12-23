@@ -1,0 +1,25 @@
+name: Smoke (self-hosted)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, windows, x64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Smoke - docker compose + health
+        shell: pwsh
+        run: |
+          ./scripts/smoke.ps1
+
+      - name: Cleanup
+        if: always()
+        shell: pwsh
+        run: |
+          docker compose down -v
